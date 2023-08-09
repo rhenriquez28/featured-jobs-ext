@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Featured Jobs for X",
+  "description": "See featured job postings for companies on thier X's profiles",
+  "version": "0.0.1",
+  "icons": {
+    "16": "/assets/featured-jobs-icon-16.png",
+    "32": "/assets/featured-jobs-icon-32.png",
+    "48": "/assets/featured-jobs-icon-48.png",
+    "128": "/assets/featured-jobs-icon-128.png"
+  },
+  "author": "Roy Henriquez",
+  "content_scripts": [
+    {
+      "run_at": "document_end",
+      "matches": [
+        "https://twitter.com/*",
+        "https://mobile.twitter.com/*",
+        "https://x.com/*"
+      ],
+      "js": ["main.js"]
+    }
+  ]
+}
