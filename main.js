@@ -31,7 +31,11 @@ async function doWork() {
     return;
   }
 
-  profileTabSection.prepend(createJobsSection(companies, companyHandle));
+  const profileParent = profileTabSection.parentElement;
+  profileParent.insertBefore(
+    createJobsSection(companies, companyHandle),
+    profileTabSection
+  );
 }
 
 async function getCompanies() {
