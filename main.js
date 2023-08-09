@@ -193,10 +193,9 @@ function createJobsList(companies, handle, currentTheme) {
                       currentTheme.subtitle
                     };">
                     ${moneySvg}
-                    <span>${numberFormatter.formatRange(
-                      job.salary.min,
-                      job.salary.max
-                    )}</span>
+                    <span>${numberFormatter
+                      .formatRange(job.salary.min, job.salary.max)
+                      .replace("–", " – ")}</span>
                     </div>
                 </a>
             </div>
