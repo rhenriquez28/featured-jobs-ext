@@ -1,11 +1,8 @@
 let currentUrl = "";
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  const newUrl = tab.url;
-  const isNewUrlAProfile = changeInfo?.title?.includes("(@");
-
-  if (newUrl !== currentUrl && isNewUrlAProfile) {
-    currentUrl = newUrl;
+  if (!currentUrl || changeInfo?.url !== currentUrl) {
+    currentUrl = changeInfo.url ?? tab.url;
     chrome.tabs.sendMessage(tabId, "urlChanged");
   }
 });
