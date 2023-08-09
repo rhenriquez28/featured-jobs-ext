@@ -1,7 +1,7 @@
 const globalSelectors = {};
 globalSelectors.profileTabSection = `[aria-label="Profile timelines"]`;
 
-const jobSectionSelector = "chrome-featured-jobs-section";
+const jobSectionId = "featured-jobs-ext-section";
 
 function removeSpecialCharacters(s) {
   // This regex matches any character that isn't a letter, number, or _ and replaces it with an empty string
@@ -26,7 +26,7 @@ async function doWork() {
   if (
     !profileTabSection ||
     !companyHandleSet.has(companyHandle) ||
-    document.getElementsByClassName(jobSectionSelector).length > 0
+    document.getElementById(jobSectionId)
   ) {
     return;
   }
@@ -39,23 +39,6 @@ async function doWork() {
 }
 
 async function getCompanies() {
-  const cachedCompaniesKey = "ext-companies";
-  const cachedCompanies = localStorage.getItem(cachedCompaniesKey);
-
-  if (cachedCompanies) {
-    return JSON.parse(cachedCompanies);
-  }
-
-  const companies = await fetchCompanies();
-  localStorage.setItem("companies", JSON.stringify(companies));
-  const oneDayInMs = 86400000;
-  setTimeout(() => {
-    localStorage.removeItem(cachedCompaniesKey);
-  }, oneDayInMs);
-  return companies;
-}
-
-async function fetchCompanies() {
   const response = await fetch(
     "https://raw.githubusercontent.com/rhenriquez28/featured-jobs-ext/main/companies.json"
   );
@@ -63,40 +46,75 @@ async function fetchCompanies() {
   return data;
 }
 
+const theme = {
+  light: {
+    title: "rgba(15,20,25,1.00)",
+    link: "rgb(29, 155, 240)",
+    tile: "rgb(255, 255, 255)",
+    border: "2px solid rgb(239, 243, 244)",
+  },
+
+  dark: {
+    title: "rgba(15,20,25,1.00)",
+    link: "rgb(29, 155, 240)",
+    tile: "rgb(255, 255, 255)",
+    border: "2px solid rgb(239, 243, 244)",
+  },
+};
+
 function createJobsSection(companies, handle) {
   const jobsSection = document.createElement("div");
-  jobsSection.classList.add(jobSectionSelector);
+  jobsSection.id = jobSectionId;
+  jobsSection.style =
+    'padding-left: 16px; padding-right: 16px; font-family: "TwitterChirp",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif';
   jobsSection.innerHTML = `
-        <div class="jobs-section__header">
-            <h2 class="jobs-section__title">Featured Jobs</h2>
-            <a href="${
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <div style="color: ${
+              theme.light.title
+            }; font-weight: 800;">We're Hiring!</div>
+            <a onMouseOver="this.style.textDecoration = 'underline'"
+            onMouseOut="this.style.textDecoration = 'none'"
+            href="${
               companies[handle].careersPage
-            }" class="jobs-section__view-all" target="_blank">View All</a>
+            }" target="_blank" style="color:${
+    theme.light.link
+  };">View all jobs</a>
         </div>
-        <div class="jobs-section__body">
-            ${createJobsList(companies, handle)}
-        </div>
+        ${createJobsList(companies, handle)}
     `;
   return jobsSection;
 }
 
 function createJobsList(companies, handle) {
-  const jobsList = document.createElement("ul");
-  jobsList.classList.add("jobs-list");
+  const jobsList = document.createElement("div");
+  const numberFormatter = Intl.NumberFormat("en", { notation: "compact" });
+  jobsList.style =
+    "display: flex; overflow-y: visible; overflow-x: scroll; width: 100%; gap: 12px;";
   companies[handle].featuredJobs.forEach((job) => {
     jobsList.innerHTML += `
-
-            <li class="jobs-list__item">
-                <a href="${job.link}" target="_blank" class="jobs-list__item-link">
-                    <div class="jobs-list__item-header">
-                        <h3 class="jobs-list__item-title">${job.name}</h3>
-                        <span class="jobs-list__item-location">${job.location}</span>
+            <div style="padding: 12px 20px; background: ${
+              theme.light.tile
+            }; border-radius: 14px; min-width: fit-content; border: ${
+      theme.light.border
+    }">
+                <a href="${
+                  job.link
+                }" target="_blank" style="text-decoration: none;">
+                    <div style="font-size: 18px; color: ${
+                      theme.light.title
+                    }; margin-bottom: 8px; font-weight: 800;">
+                        ${job.name}
                     </div>
-                    <div class="jobs-list__item-footer">
-                        <span class="jobs-list__item-salary">${job.salary.min} - ${job.salary.max}</span>
+                    <div style="margin-bottom: 8px;">
+                      <span>${job.location}</span>
+                    </div>
+                    <div>
+                        <span>${numberFormatter.format(
+                          job.salary.min
+                        )} - ${numberFormatter.format(job.salary.max)}</span>
                     </div>
                 </a>
-            </li>
+            </div>
             `;
   });
   return jobsList.outerHTML;
