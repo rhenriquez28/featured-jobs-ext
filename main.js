@@ -1,17 +1,27 @@
-const companyHandleList = Object.keys(companies);
-
 const globalSelectors = {};
 globalSelectors.profileTabSection = `[aria-label="Profile timelines"]`;
 
 const jobSectionSelector = "chrome-featured-jobs-section";
-const innerSelectors = {};
+
+function removeSpecialCharacters(s) {
+  // This regex matches any character that isn't a letter, number, or _ and replaces it with an empty string
+  return s.replace(/[^a-zA-Z0-9_]/g, "");
+}
 
 async function doWork() {
-  const companyHandle = document.location.pathname.replace("/", "");
+  const companyHandle = removeSpecialCharacters(
+    document.location.pathname.replace("/", "")
+  );
 
   const profileTabSection = document.querySelector(
     globalSelectors.profileTabSection
   );
+
+  const companies = await getCompanies().catch((err) => {
+    console.error(err);
+  });
+
+  const companyHandleList = Object.keys(companies);
 
   if (
     !profileTabSection ||
@@ -21,10 +31,35 @@ async function doWork() {
     return;
   }
 
-  profileTabSection.prepend(createJobsSection(companyHandle));
+  profileTabSection.prepend(createJobsSection(companies, companyHandle));
 }
 
-function createJobsSection(handle) {
+async function getCompanies() {
+  const cachedCompaniesKey = "ext-companies";
+  const cachedCompanies = localStorage.getItem(cachedCompaniesKey);
+
+  if (cachedCompanies) {
+    return JSON.parse(cachedCompanies);
+  }
+
+  const companies = await fetchCompanies();
+  localStorage.setItem("companies", JSON.stringify(companies));
+  const oneDayInMs = 86400000;
+  setTimeout(() => {
+    localStorage.removeItem(cachedCompaniesKey);
+  }, oneDayInMs);
+  return companies;
+}
+
+async function fetchCompanies() {
+  const response = await fetch(
+    "https://raw.githubusercontent.com/rhenriquez28/featured-jobs-ext/main/companies.json"
+  );
+  const data = await response.json();
+  return data;
+}
+
+function createJobsSection(companies, handle) {
   const jobsSection = document.createElement("div");
   jobsSection.classList.add(jobSectionSelector);
   jobsSection.innerHTML = `
@@ -35,13 +70,13 @@ function createJobsSection(handle) {
             }" class="jobs-section__view-all" target="_blank">View All</a>
         </div>
         <div class="jobs-section__body">
-            ${createJobsList(handle)}
+            ${createJobsList(companies, handle)}
         </div>
     `;
   return jobsSection;
 }
 
-function createJobsList(handle) {
+function createJobsList(companies, handle) {
   const jobsList = document.createElement("ul");
   jobsList.classList.add("jobs-list");
   companies[handle].featuredJobs.forEach((job) => {
