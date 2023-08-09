@@ -21,11 +21,11 @@ async function doWork() {
     console.error(err);
   });
 
-  const companyHandleList = Object.keys(companies);
+  const companyHandleSet = new Set(Object.keys(companies));
 
   if (
     !profileTabSection ||
-    !companyHandleList.includes(companyHandle) ||
+    !companyHandleSet.has(companyHandle) ||
     document.getElementsByClassName(jobSectionSelector).length > 0
   ) {
     return;
