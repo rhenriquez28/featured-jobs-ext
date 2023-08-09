@@ -1,38 +1,3 @@
-const companies = {
-  vercel: {
-    careersPage: "https://vercel.com/careers",
-    featuredJobs: [
-      {
-        name: "Business Systems, Analyst",
-        link: "https://vercel.com/careers/business-systems-analyst-us-4919040004",
-        location: "Remote (United States)",
-        salary: {
-          min: 100000,
-          max: 200000,
-        },
-      },
-      {
-        name: "Senior Software Engineer, Platform",
-        link: "https://vercel.com/careers/5e8f9f9e-4b9a-4b0a-9e0a-0a9a1a1a1a1a",
-        location: "Remote",
-        salary: {
-          min: 100000,
-          max: 200000,
-        },
-      },
-      {
-        name: "Senior Software Engineer, Platform",
-        link: "https://vercel.com/careers/5e8f9f9e-4b9a-4b0a-9e0a-0a9a1a1a1a1a",
-        location: "Remote",
-        salary: {
-          min: 100000,
-          max: 200000,
-        },
-      },
-    ],
-  },
-};
-
 const companyHandleList = Object.keys(companies);
 
 const globalSelectors = {};
